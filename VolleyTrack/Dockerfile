@@ -8,4 +8,6 @@ RUN npm install --quit
 
 COPY ./ ./
 
+EXPOSE 5174
+
 CMD ["npm", "start"]
