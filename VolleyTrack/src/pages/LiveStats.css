@@ -1,55 +1,9 @@
-.live-stats-container {
-	padding: 20px;
-	max-width: 1200px;
-	margin: 0 auto;
-}
-
-.players-container {
-	margin-top: 20px;
-}
-
-.player-field {
+.team-form ul {
+    list-style-type: none;
+    padding-left: 0;
 	margin-bottom: 20px;
-	padding: 15px;
-	border: 1px solid #ddd;
-	border-radius: 8px;
-	background-color: #f9f9f9;
 }
 
-.player-field h3 {
-	margin: 0 0 10px 0;
-	color: #333;
-}
-
-.player-inputs {
-	display: flex;
-	gap: 10px;
-	align-items: center;
-	flex-wrap: wrap;
-}
-
-.player-number {
-	width: 80px;
-	padding: 8px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-}
-
-.player-position {
-	padding: 8px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	min-width: 80px;
-}
-
-.playing-status {
-	display: flex;
-	align-items: center;
-	gap: 5px;
-	cursor: pointer;
-}
-
-.playing-status input[type="checkbox"] {
-	width: 16px;
-	height: 16px;
+.team-form ul li {
+    margin-bottom: 12px;
 }

@@ -1,67 +1,171 @@
 import "./LiveStats.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function LiveStats() {
-	const [players, setPlayers] = useState(
-		Array.from({ length: 14 }, (_, i) => ({
-			number: "",
-			position: "",
-			isPlaying: false
-		}))
-	);
+	const [teams, setTeams] = useState([]);
+	const [selectedTeam, setSelectedTeam] = useState(null);
+	const [teamForm, setTeamForm] = useState({ coachName: "", teamName: "" });
+	const [newPlayer, setNewPlayer] = useState({
+		number: "",
+		position: "",
+		isPlaying: false,
+	});
+	const [players, setPlayers] = useState([]);
 
-	const handlePlayerChange = (index, field, value) => {
-		const updatedPlayers = [...players];
-		updatedPlayers[index] = {
-			...updatedPlayers[index],
-			[field]: value
-		};
-		setPlayers(updatedPlayers);
+	useEffect(() => {
+		fetch("http://localhost:5500/teams")
+			.then((res) => res.json())
+			.then((data) => setTeams(data))
+			.catch((err) => console.error(err));
+	}, []);
+
+	useEffect(() => {
+		if (!selectedTeam) return;
+
+		fetch(`http://localhost:5500/teams/${selectedTeam._id}/players`)
+			.then((res) => res.json())
+			.then((data) => setPlayers(Array.isArray(data) ? data : []))
+			.catch((err) => {
+				console.error(err);
+				setPlayers([]);
+			});
+	}, [selectedTeam]);
+
+	const createTeam = async () => {
+		if (!teamForm.coachName || !teamForm.teamName) return;
+
+		try {
+			const res = await fetch("http://localhost:5500/teams", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(teamForm),
+			});
+			const data = await res.json();
+			setSelectedTeam(data);
+			setTeamForm({ coachName: "", teamName: "" });
+		} catch (err) {
+			console.error(err);
+		}
+	};
+
+	const addPlayer = async () => {
+		if (!selectedTeam || !newPlayer.number || !newPlayer.position) return;
+
+		try {
+			const res = await fetch(
+				`http://localhost:5500/teams/${selectedTeam._id}/players`,
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(newPlayer),
+				}
+			);
+			const data = await res.json();
+			if (res.ok) {
+				setPlayers((prev) => [...prev, data.player]);
+				setNewPlayer({ number: "", position: "", isPlaying: false });
+			}
+		} catch (err) {
+			console.error(err);
+		}
 	};
 
 	return (
 		<div className="live-stats-container">
-			<h1>Live Stats</h1>
-			<div className="players-container">
-				<div className="home-players">
-					<h2>Who is playing in your team?</h2>
-					{players.map((player, index) => (
-						<div key={index} className="player-field">
-							<h3>Player {index + 1}</h3>
-							<div className="player-inputs">
-								<input
-									type="text"
-									placeholder="Number"
-									value={player.number}
-									onChange={(e) => handlePlayerChange(index, "number", e.target.value)}
-									className="player-number"
-								/>
-								<select
-									value={player.position}
-									onChange={(e) => handlePlayerChange(index, "position", e.target.value)}
-									className="player-position"
-								>
-									<option value="">Position</option>
-									<option value="RS">RS</option>
-									<option value="OH">OH</option>
-									<option value="L">L</option>
-									<option value="S">S</option>
-									<option value="M">M</option>
-								</select>
-								<label className="playing-status">
-									<input
-										type="checkbox"
-										checked={player.isPlaying}
-										onChange={(e) => handlePlayerChange(index, "isPlaying", e.target.checked)}
-									/>
-									Playing
-								</label>
-							</div>
-						</div>
-					))}
+			{!selectedTeam && (
+				<div className="team-form">
+					<h2>Maak je team</h2>
+					<input
+						placeholder="Coachnaam"
+						value={teamForm.coachName}
+						onChange={(e) =>
+							setTeamForm({ ...teamForm, coachName: e.target.value })
+						}
+					/>
+					<br />
+					<br />
+					<input
+						placeholder="Teamnaam"
+						value={teamForm.teamName}
+						onChange={(e) =>
+							setTeamForm({ ...teamForm, teamName: e.target.value })
+						}
+					/>
+					<br />
+					<br />
+					<button onClick={createTeam}>Maak team</button>
+
+					<h3>Of kies een bestaand team</h3>
+					<ul>
+						{teams.map((t) => (
+							<li key={t._id}>
+								<button onClick={() => setSelectedTeam(t)}>
+									{t.teamName} ({t.coachName})
+								</button>
+							</li>
+						))}
+					</ul>
 				</div>
-				<button className="submit-button">Submit</button>
-			</div>
+			)}
+
+			{selectedTeam && (
+				<div className="players-section">
+					<h2>Team: {selectedTeam.teamName}</h2>
+					<h3>Voeg spelers toe</h3>
+					<input
+						placeholder="Nummer"
+						value={newPlayer.number}
+						onChange={(e) =>
+							setNewPlayer((prev) => ({ ...prev, number: e.target.value }))
+						}
+					/>
+					<br />
+					<br />
+					<select
+						value={newPlayer.position}
+						onChange={(e) =>
+							setNewPlayer((prev) => ({ ...prev, position: e.target.value }))
+						}
+					>
+						<option value="">Positie</option>
+						<option value="RS">RS</option>
+						<option value="OH">OH</option>
+						<option value="L">L</option>
+						<option value="S">S</option>
+						<option value="M">M</option>
+					</select>
+					<br />
+					<br />
+					<label>
+						<input
+							type="checkbox"
+							checked={newPlayer.isPlaying}
+							onChange={(e) =>
+								setNewPlayer((prev) => ({
+									...prev,
+									isPlaying: e.target.checked,
+								}))
+							}
+						/>
+						Playing
+					</label>
+					<br />
+					<br />
+					<button onClick={addPlayer}>Voeg speler toe</button>
+					<br />
+					<br />
+					<h3>Spelerslijst</h3>
+					<ul>
+						{players.map((p, i) => (
+							<li key={i}>
+								#{p.number} - {p.position} {p.isPlaying ? "(Playing)" : ""}
+							</li>
+						))}
+					</ul>
+
+					<button onClick={() => setSelectedTeam(null)}>Kies ander team</button>
+				</div>
+			)}
 		</div>
 	);
 }
