@@ -1,5 +1,6 @@
 import "./LiveStats.css";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function LiveStats() {
 	const [teams, setTeams] = useState([]);
@@ -11,6 +12,10 @@ function LiveStats() {
 		isPlaying: false,
 	});
 	const [players, setPlayers] = useState([]);
+	const navigate = useNavigate();
+	const goToMatch = () => {
+		navigate("/live-match", { state: { team: selectedTeam, players } });
+	};
 
 	useEffect(() => {
 		fetch("http://localhost:5500/teams")
@@ -162,8 +167,8 @@ function LiveStats() {
 							</li>
 						))}
 					</ul>
-
 					<button onClick={() => setSelectedTeam(null)}>Kies ander team</button>
+					<button onClick={goToMatch}>Volgende</button>
 				</div>
 			)}
 		</div>
