@@ -15,7 +15,6 @@ function Home() {
                 >
                     Start New Match
                 </button>
-                <button className="home-button">View Live Actions</button>
             </div>
         </div>
     );
