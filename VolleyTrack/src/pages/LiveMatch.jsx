@@ -51,8 +51,37 @@ function LiveMatch() {
 		const rect = court.getBoundingClientRect();
 		const x = ((event.clientX - rect.left) / rect.width) * 100;
 		const y = ((event.clientY - rect.top) / rect.height) * 100;
-		
-		setBallDrops(prev => [...prev, { x, y, id: Date.now() }]);
+
+		setBallDrops((prev) => [...prev, { x, y, id: Date.now() }]);
+	};
+
+	const saveMatch = async () => {
+		try {
+			const res = await fetch("http://localhost:5500/matches", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					teamId: team._id,
+					teamName: team.teamName,
+					players: stats,
+					opponentZones,
+					ballDrops,
+				}),
+			});
+
+			const data = await res.json();
+
+			if (res.ok) {
+				alert("Match succesvol opgeslagen!");
+			} else {
+				alert(data.message || "Fout bij opslaan");
+			}
+		} catch (err) {
+			console.error(err);
+			alert("Server fout");
+		}
 	};
 
 	return (
@@ -79,7 +108,16 @@ function LiveMatch() {
 					<button onClick={() => updateStat(s.number, "tips")}>+ Tip</button>
 				</div>
 			))}
-            <div className="court-section">
+			<h3>Tegenstander scoort</h3>
+			<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 80px)" }}>
+				{[1, 2, 3, 4, 5, 6].map((zone) => (
+					<button key={zone} onClick={() => scoreOpponent(zone)}>
+						Zone {zone}
+						<br />({opponentZones[zone]})
+					</button>
+				))}
+			</div>
+			<div className="court-section">
 				<h3>Volleyball Court - Ball Drops</h3>
 				<div className="court" onClick={handleCourtClick}>
 					<div className="court-lines">
@@ -87,13 +125,13 @@ function LiveMatch() {
 						<div className="attack-line"></div>
 						<div className="end-line"></div>
 					</div>
-					{ballDrops.map(drop => (
+					{ballDrops.map((drop) => (
 						<div
 							key={drop.id}
 							className="ball-drop"
 							style={{
 								left: `${drop.x}%`,
-								top: `${drop.y}%`
+								top: `${drop.y}%`,
 							}}
 						></div>
 					))}
@@ -102,6 +140,9 @@ function LiveMatch() {
 					Clear Ball Drops
 				</button>
 			</div>
+            <br />
+			<button onClick={saveMatch}>Save Match</button>
+			<button>See Analysis</button>
 		</div>
 	);
 }
