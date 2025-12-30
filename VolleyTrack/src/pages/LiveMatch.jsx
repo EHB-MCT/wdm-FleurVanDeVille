@@ -1,6 +1,14 @@
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import "./LiveMatch.css";
+import {
+	PieChart,
+	Pie,
+	Cell,
+	ResponsiveContainer,
+	Legend,
+	Tooltip,
+} from "recharts";
 
 function LiveMatch() {
 	const { state } = useLocation();
@@ -45,6 +53,7 @@ function LiveMatch() {
 	};
 
 	const [ballDrops, setBallDrops] = useState([]);
+	const [showAnalysis, setShowAnalysis] = useState(false);
 
 	const handleCourtClick = (event) => {
 		const court = event.currentTarget;
@@ -82,6 +91,85 @@ function LiveMatch() {
 			console.error(err);
 			alert("Server fout");
 		}
+	};
+
+	const getPlayerStatsData = () => {
+		return stats.map((player) => ({
+			name: `#${player.number}`,
+			value: player.points + player.attacks + player.tips,
+			points: player.points,
+			attacks: player.attacks,
+			tips: player.tips,
+		}));
+	};
+
+	const getOpponentZonesData = () => {
+		return Object.entries(opponentZones)
+			.filter(([_, count]) => count > 0)
+			.map(([zone, count]) => ({
+				name: `Zone ${zone}`,
+				value: count,
+			}));
+	};
+
+	const getErrorsData = () => {
+		return stats
+			.map((player) => ({
+				name: `#${player.number}`,
+				value: player.errors,
+			}))
+			.filter((item) => item.value > 0);
+	};
+
+	const COLORS = [
+		"#0088FE",
+		"#00C49F",
+		"#FFBB28",
+		"#FF8042",
+		"#8884D8",
+		"#82CA9D",
+	];
+
+	const createGradientOverlay = () => {
+		if (ballDrops.length === 0) return null;
+
+		const gradientData = [];
+		const gridSize = 10;
+
+		for (let y = 0; y < 100; y += gridSize) {
+			for (let x = 0; x < 100; x += gridSize) {
+				const nearbyDrops = ballDrops.filter((drop) => {
+					const distance = Math.sqrt(
+						Math.pow(drop.x - (x + gridSize / 2), 2) +
+							Math.pow(drop.y - (y + gridSize / 2), 2)
+					);
+					return distance < 15;
+				});
+
+				if (nearbyDrops.length > 0) {
+					gradientData.push({
+						x: x,
+						y: y,
+						intensity: Math.min(nearbyDrops.length * 0.3, 1),
+					});
+				}
+			}
+		}
+
+		return gradientData.map((spot, index) => (
+			<div
+				key={index}
+				className="gradient-spot"
+				style={{
+					left: `${spot.x}%`,
+					top: `${spot.y}%`,
+					width: `${gridSize}%`,
+					height: `${gridSize}%`,
+					opacity: spot.intensity,
+					background: `radial-gradient(circle, rgba(255,0,0,0.6) 0%, rgba(255,0,0,0) 70%)`,
+				}}
+			/>
+		));
 	};
 
 	return (
@@ -140,9 +228,124 @@ function LiveMatch() {
 					Clear Ball Drops
 				</button>
 			</div>
-            <br />
+			<br />
 			<button onClick={saveMatch}>Save Match</button>
-			<button>See Analysis</button>
+			<button onClick={() => setShowAnalysis(!showAnalysis)}>
+				See Analysis
+			</button>
+
+			{showAnalysis && (
+				<div className="analysis-section">
+					<h2>Match Analysis</h2>
+
+					<div className="charts-container">
+						<div className="chart-wrapper">
+							<h3>Player Contributions</h3>
+							<ResponsiveContainer width="100%" height={300}>
+								<PieChart>
+									<Pie
+										data={getPlayerStatsData()}
+										cx="50%"
+										cy="50%"
+										labelLine={false}
+										label={({ name, value }) => `${name}: ${value}`}
+										outerRadius={80}
+										fill="#8884d8"
+										dataKey="value"
+									>
+										{getPlayerStatsData().map((entry, index) => (
+											<Cell
+												key={`cell-${index}`}
+												fill={COLORS[index % COLORS.length]}
+											/>
+										))}
+									</Pie>
+									<Tooltip />
+									<Legend />
+								</PieChart>
+							</ResponsiveContainer>
+						</div>
+
+						<div className="chart-wrapper">
+							<h3>Opponent Scoring Zones</h3>
+							<ResponsiveContainer width="100%" height={300}>
+								<PieChart>
+									<Pie
+										data={getOpponentZonesData()}
+										cx="50%"
+										cy="50%"
+										labelLine={false}
+										label={({ name, value }) => `${name}: ${value}`}
+										outerRadius={80}
+										fill="#82ca9d"
+										dataKey="value"
+									>
+										{getOpponentZonesData().map((entry, index) => (
+											<Cell
+												key={`cell-${index}`}
+												fill={COLORS[index % COLORS.length]}
+											/>
+										))}
+									</Pie>
+									<Tooltip />
+									<Legend />
+								</PieChart>
+							</ResponsiveContainer>
+						</div>
+
+						{getErrorsData().length > 0 && (
+							<div className="chart-wrapper">
+								<h3>Player Errors</h3>
+								<ResponsiveContainer width="100%" height={300}>
+									<PieChart>
+										<Pie
+											data={getErrorsData()}
+											cx="50%"
+											cy="50%"
+											labelLine={false}
+											label={({ name, value }) => `${name}: ${value}`}
+											outerRadius={80}
+											fill="#ff7c7c"
+											dataKey="value"
+										>
+											{getErrorsData().map((entry, index) => (
+												<Cell
+													key={`cell-${index}`}
+													fill={COLORS[index % COLORS.length]}
+												/>
+											))}
+										</Pie>
+										<Tooltip />
+										<Legend />
+									</PieChart>
+								</ResponsiveContainer>
+							</div>
+						)}
+					</div>
+
+					<div className="court-analysis">
+						<h3>Court Heat Map - Ball Drops</h3>
+						<div className="court analysis-court">
+							<div className="court-lines">
+								<div className="center-line"></div>
+								<div className="attack-line"></div>
+								<div className="end-line"></div>
+							</div>
+							{createGradientOverlay()}
+							{ballDrops.map((drop) => (
+								<div
+									key={drop.id}
+									className="ball-drop analysis-drop"
+									style={{
+										left: `${drop.x}%`,
+										top: `${drop.y}%`,
+									}}
+								></div>
+							))}
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
