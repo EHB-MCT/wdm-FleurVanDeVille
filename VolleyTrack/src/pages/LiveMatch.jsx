@@ -2,12 +2,17 @@ import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import "./LiveMatch.css";
 import {
+	BarChart,
+	Bar,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	ResponsiveContainer,
 	PieChart,
 	Pie,
 	Cell,
-	ResponsiveContainer,
-	Legend,
 	Tooltip,
+	Legend,
 } from "recharts";
 
 function LiveMatch() {
@@ -172,38 +177,58 @@ function LiveMatch() {
 		));
 	};
 
+	const getTopScorers = () => {
+		return [...stats]
+			.map((p) => ({
+				number: p.number,
+				total: p.points + p.attacks + p.tips,
+			}))
+			.sort((a, b) => b.total - a.total)
+			.slice(0, 6);
+	};
+
 	return (
 		<div>
 			<h2>Live Match – {team.teamName}</h2>
 
 			<h3>Spelers</h3>
-			{stats.map((s) => (
-				<div
-					key={s.number}
-					style={{ border: "1px solid #ccc", margin: 8, padding: 8 }}
-				>
-					<strong>#{s.number}</strong>
-					<p>Punten: {s.points}</p>
-					<p>Fouten: {s.errors}</p>
-					<p>Aanvallen: {s.attacks}</p>
-					<p>Tips: {s.tips}</p>
+			<div className="players-score">
+				{stats.map((s) => (
+					<div
+						key={s.number}
+						style={{ border: "1px solid #ccc", margin: 8, padding: 8 }}
+					>
+						<strong>#{s.number}</strong>
+						<p>Punten: {s.points}</p>
+						<p>Fouten: {s.errors}</p>
+						<p>Aanvallen: {s.attacks}</p>
+						<p>Tips: {s.tips}</p>
 
-					<button onClick={() => updateStat(s.number, "points")}>+ Punt</button>
-					<button onClick={() => updateStat(s.number, "errors")}>+ Fout</button>
-					<button onClick={() => updateStat(s.number, "attacks")}>
-						+ Aanval
-					</button>
-					<button onClick={() => updateStat(s.number, "tips")}>+ Tip</button>
-				</div>
-			))}
-			<h3>Tegenstander scoort</h3>
-			<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 80px)" }}>
-				{[1, 2, 3, 4, 5, 6].map((zone) => (
-					<button key={zone} onClick={() => scoreOpponent(zone)}>
-						Zone {zone}
-						<br />({opponentZones[zone]})
-					</button>
+						<button onClick={() => updateStat(s.number, "points")}>
+							+ Punt
+						</button>
+						<button onClick={() => updateStat(s.number, "errors")}>
+							+ Fout
+						</button>
+						<button onClick={() => updateStat(s.number, "attacks")}>
+							+ Aanval
+						</button>
+						<button onClick={() => updateStat(s.number, "tips")}>+ Tip</button>
+					</div>
 				))}
+			</div>
+			<h3>Tegenstander scoort</h3>
+			<div className="oppo-score">
+				<div
+					style={{ display: "grid", gridTemplateColumns: "repeat(3, 80px)" }}
+				>
+					{[1, 2, 3, 4, 5, 6].map((zone) => (
+						<button key={zone} onClick={() => scoreOpponent(zone)}>
+							Zone {zone}
+							<br />({opponentZones[zone]})
+						</button>
+					))}
+				</div>
 			</div>
 			<div className="court-section">
 				<h3>Volleyball Court - Ball Drops</h3>
@@ -240,24 +265,32 @@ function LiveMatch() {
 
 					<div className="charts-container">
 						<div className="chart-wrapper">
-							<h3>Player Contributions</h3>
-							<ResponsiveContainer width="100%" height={300}>
+							<h3>Top 6 Scorers</h3>
+
+							<ul className="top-scorers">
+								{getTopScorers().map((p, index) => (
+									<li key={p.number}>
+										<span className="rank">#{index + 1}</span>
+										<span className="player">Player {p.number}</span>
+										<span className="score">{p.total}</span>
+									</li>
+								))}
+							</ul>
+
+							<h4>Contribution Distribution</h4>
+							<ResponsiveContainer width="100%" height={260}>
 								<PieChart>
 									<Pie
 										data={getPlayerStatsData()}
 										cx="50%"
 										cy="50%"
-										labelLine={false}
-										label={({ name, value }) => `${name}: ${value}`}
-										outerRadius={80}
-										fill="#8884d8"
+										innerRadius={50}
+										outerRadius={90}
+										paddingAngle={3}
 										dataKey="value"
 									>
-										{getPlayerStatsData().map((entry, index) => (
-											<Cell
-												key={`cell-${index}`}
-												fill={COLORS[index % COLORS.length]}
-											/>
+										{getPlayerStatsData().map((_, index) => (
+											<Cell key={index} fill={COLORS[index % COLORS.length]} />
 										))}
 									</Pie>
 									<Tooltip />
@@ -268,28 +301,15 @@ function LiveMatch() {
 
 						<div className="chart-wrapper">
 							<h3>Opponent Scoring Zones</h3>
+
 							<ResponsiveContainer width="100%" height={300}>
-								<PieChart>
-									<Pie
-										data={getOpponentZonesData()}
-										cx="50%"
-										cy="50%"
-										labelLine={false}
-										label={({ name, value }) => `${name}: ${value}`}
-										outerRadius={80}
-										fill="#82ca9d"
-										dataKey="value"
-									>
-										{getOpponentZonesData().map((entry, index) => (
-											<Cell
-												key={`cell-${index}`}
-												fill={COLORS[index % COLORS.length]}
-											/>
-										))}
-									</Pie>
+								<BarChart data={getOpponentZonesData()}>
+									<CartesianGrid strokeDasharray="3 3" />
+									<XAxis dataKey="name" />
+									<YAxis allowDecimals={false} />
 									<Tooltip />
-									<Legend />
-								</PieChart>
+									<Bar dataKey="value" fill="#82ca9d" />
+								</BarChart>
 							</ResponsiveContainer>
 						</div>
 
@@ -302,10 +322,8 @@ function LiveMatch() {
 											data={getErrorsData()}
 											cx="50%"
 											cy="50%"
-											labelLine={false}
-											label={({ name, value }) => `${name}: ${value}`}
-											outerRadius={80}
-											fill="#ff7c7c"
+											innerRadius={50}
+											outerRadius={90}
 											dataKey="value"
 										>
 											{getErrorsData().map((entry, index) => (

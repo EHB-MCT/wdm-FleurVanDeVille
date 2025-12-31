@@ -6,6 +6,18 @@
 	background-color: #f9f9f9;
 }
 
+.players-score{
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+	gap: 10px;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.oppo-score{
+	margin-left: 41%;
+}
+
 .court {
 	position: relative;
 	width: 550px;
@@ -91,16 +103,16 @@
 
 .charts-container {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-	gap: 30px;
-	margin: 20px 0;
+	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+	gap: 24px;
+	margin-top: 20px;
 }
 
 .chart-wrapper {
-	background: white;
-	padding: 20px;
-	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	background: #fff;
+	padding: 16px;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .chart-wrapper h3 {
@@ -127,4 +139,26 @@
 .analysis-drop {
 	background-color: #ffffff;
 	border: 2px solid #ff4444;
+}
+
+.top-scorers {
+	list-style: none;
+	padding: 0;
+	margin-bottom: 16px;
+}
+
+.top-scorers li {
+	display: grid;
+	grid-template-columns: 30px 1fr 40px;
+	padding: 6px 0;
+	border-bottom: 1px solid #eee;
+}
+
+.top-scorers .rank {
+	font-weight: bold;
+}
+
+.top-scorers .score {
+	text-align: right;
+	font-weight: bold;
 }
