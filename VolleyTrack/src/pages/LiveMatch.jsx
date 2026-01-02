@@ -17,7 +17,7 @@ import {
 
 function LiveMatch() {
 	const { state } = useLocation();
-	const { team, players } = state || {};
+	const { team, players, matchStartTime } = state || {};
 
 	const [stats, setStats] = useState(
 		players.map((p) => ({
@@ -57,8 +57,9 @@ function LiveMatch() {
 		}));
 	};
 
-	const [ballDrops, setBallDrops] = useState([]);
+const [ballDrops, setBallDrops] = useState([]);
 	const [showAnalysis, setShowAnalysis] = useState(false);
+	const [matchDuration, setMatchDuration] = useState(null);
 
 	const handleCourtClick = (event) => {
 		const court = event.currentTarget;
@@ -67,6 +68,22 @@ function LiveMatch() {
 		const y = ((event.clientY - rect.top) / rect.height) * 100;
 
 		setBallDrops((prev) => [...prev, { x, y, id: Date.now() }]);
+	};
+
+	const formatDuration = (milliseconds) => {
+		const totalSeconds = Math.floor(milliseconds / 1000);
+		const minutes = Math.floor(totalSeconds / 60);
+		const seconds = totalSeconds % 60;
+		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+	};
+
+	const handleSeeAnalysis = () => {
+		if (matchStartTime && !matchDuration) {
+			const endTime = Date.now();
+			const duration = endTime - matchStartTime;
+			setMatchDuration(duration);
+		}
+		setShowAnalysis(!showAnalysis);
 	};
 
 	const saveMatch = async () => {
@@ -255,7 +272,7 @@ function LiveMatch() {
 			</div>
 			<br />
 			<button onClick={saveMatch}>Save Match</button>
-			<button onClick={() => setShowAnalysis(!showAnalysis)}>
+			<button onClick={handleSeeAnalysis}>
 				See Analysis
 			</button>
 
@@ -362,6 +379,13 @@ function LiveMatch() {
 							))}
 						</div>
 					</div>
+					
+					{matchDuration && (
+						<div className="match-duration">
+							<h3>Match Duration</h3>
+							<p className="duration-time">{formatDuration(matchDuration)}</p>
+						</div>
+					)}
 				</div>
 			)}
 		</div>

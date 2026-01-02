@@ -14,7 +14,8 @@ function LiveStats() {
 	const [players, setPlayers] = useState([]);
 	const navigate = useNavigate();
 	const goToMatch = () => {
-		navigate("/live-match", { state: { team: selectedTeam, players } });
+		const matchStartTime = Date.now();
+		navigate("/live-match", { state: { team: selectedTeam, players, matchStartTime } });
 	};
 
 	useEffect(() => {

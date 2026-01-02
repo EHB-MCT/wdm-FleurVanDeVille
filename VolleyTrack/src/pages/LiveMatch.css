@@ -162,3 +162,25 @@
 	text-align: right;
 	font-weight: bold;
 }
+
+.match-duration {
+	text-align: center;
+	margin-top: 30px;
+	padding: 20px;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	border-radius: 8px;
+	box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.match-duration h3 {
+	margin: 0 0 10px 0;
+	font-size: 1.2em;
+}
+
+.duration-time {
+	font-size: 2em;
+	font-weight: bold;
+	margin: 0;
+	text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
