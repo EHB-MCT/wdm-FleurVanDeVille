@@ -101,6 +101,38 @@
 	background-color: #f0f8f0;
 }
 
+.filter-controls {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	margin-bottom: 20px;
+	padding: 15px;
+	background: white;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.filter-controls label {
+	font-weight: 600;
+	color: #333;
+}
+
+.filter-select {
+	padding: 8px 12px;
+	border: 2px solid #ddd;
+	border-radius: 6px;
+	background: white;
+	font-size: 14px;
+	cursor: pointer;
+	min-width: 200px;
+}
+
+.filter-select:focus {
+	outline: none;
+	border-color: #4CAF50;
+	box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
 .charts-container {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -161,6 +193,41 @@
 .top-scorers .score {
 	text-align: right;
 	font-weight: bold;
+}
+
+.timing-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.timing-item {
+	display: grid;
+	grid-template-columns: 30px 1fr 60px 80px;
+	padding: 8px 0;
+	border-bottom: 1px solid #eee;
+	align-items: center;
+}
+
+.timing-item .rank {
+	font-weight: bold;
+	color: #667eea;
+}
+
+.timing-item .player {
+	font-weight: 500;
+}
+
+.timing-item .avg-time {
+	font-weight: bold;
+	color: #28a745;
+	text-align: center;
+}
+
+.timing-item .actions-count {
+	font-size: 0.8em;
+	color: #666;
+	text-align: right;
 }
 
 .match-duration {

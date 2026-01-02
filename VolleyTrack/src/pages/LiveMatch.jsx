@@ -39,6 +39,39 @@ function LiveMatch() {
 				s.number === number ? { ...s, [field]: s[field] + 1 } : s
 			)
 		);
+		
+		// Track timing for points, tips, and attacks
+		if (field === 'points' || field === 'tips' || field === 'attacks') {
+			const now = Date.now();
+			
+			// Clear existing timer for this player
+			if (playerIntervals[number]) {
+				clearInterval(playerIntervals[number]);
+			}
+			
+			// If this player had a previous start time, record the interval
+			if (playerTimers[number]?.startTime) {
+				const interval = now - playerTimers[number].startTime;
+				setPlayerTimers(prev => ({
+					...prev,
+					[number]: {
+						...prev[number],
+						intervals: [...(prev[number]?.intervals || []), interval],
+						startTime: now
+					}
+				}));
+			} else {
+				// Start timing for this player
+				setPlayerTimers(prev => ({
+					...prev,
+					[number]: {
+						...prev[number],
+						startTime: now,
+						intervals: prev[number]?.intervals || []
+					}
+				}));
+			}
+		}
 	};
 
 	const [opponentZones, setOpponentZones] = useState({
@@ -60,6 +93,9 @@ function LiveMatch() {
 const [ballDrops, setBallDrops] = useState([]);
 	const [showAnalysis, setShowAnalysis] = useState(false);
 	const [matchDuration, setMatchDuration] = useState(null);
+	const [playerTimers, setPlayerTimers] = useState({});
+	const [playerIntervals, setPlayerIntervals] = useState({});
+	const [analysisFilter, setAnalysisFilter] = useState('all');
 
 	const handleCourtClick = (event) => {
 		const court = event.currentTarget;
@@ -83,6 +119,8 @@ const [ballDrops, setBallDrops] = useState([]);
 			const duration = endTime - matchStartTime;
 			setMatchDuration(duration);
 		}
+		// Stop all player timers when analysis is shown
+		Object.values(playerIntervals).forEach(interval => clearInterval(interval));
 		setShowAnalysis(!showAnalysis);
 	};
 
@@ -141,6 +179,104 @@ const [ballDrops, setBallDrops] = useState([]);
 				value: player.errors,
 			}))
 			.filter((item) => item.value > 0);
+	};
+
+	const getPlayerTimingData = () => {
+		return stats
+			.map((player) => {
+				const playerTimer = playerTimers[player.number];
+				if (!playerTimer || !playerTimer.intervals || playerTimer.intervals.length === 0) {
+					return null;
+				}
+				
+				const avgTime = playerTimer.intervals.reduce((sum, interval) => sum + interval, 0) / playerTimer.intervals.length;
+				
+				return {
+					name: `#${player.number}`,
+					avgTime: Math.round(avgTime / 1000 * 10) / 10, // Convert to seconds with 1 decimal
+					intervals: playerTimer.intervals.length,
+					totalActions: player.points + player.attacks + player.tips
+				};
+			})
+			.filter(item => item !== null)
+			.sort((a, b) => a.avgTime - b.avgTime); // Sort by fastest average time
+	};
+
+	const getFilteredPlayers = () => {
+		let filteredStats = [...stats];
+		
+		if (analysisFilter === 'playing') {
+			// Filter for players who are marked as playing
+			filteredStats = filteredStats.filter(stat => {
+				const player = players.find(p => p.number === stat.number);
+				return player && player.isPlaying;
+			});
+		} else if (analysisFilter !== 'all') {
+			// Filter by position
+			filteredStats = filteredStats.filter(stat => {
+				const player = players.find(p => p.number === stat.number);
+				return player && player.position === analysisFilter;
+			});
+		}
+		
+		return filteredStats;
+	};
+
+	const getFilteredPlayerStatsData = () => {
+		const filteredPlayers = getFilteredPlayers();
+		return filteredPlayers.map((player) => ({
+			name: `#${player.number}`,
+			value: player.points + player.attacks + player.tips,
+			points: player.points,
+			attacks: player.attacks,
+			tips: player.tips,
+		}));
+	};
+
+	const getFilteredErrorsData = () => {
+		const filteredPlayers = getFilteredPlayers();
+		return filteredPlayers
+			.map((player) => ({
+				name: `#${player.number}`,
+				value: player.errors,
+			}))
+			.filter((item) => item.value > 0);
+	};
+
+	const getFilteredTimingData = () => {
+		const filteredPlayers = getFilteredPlayers();
+		return filteredPlayers
+			.map((player) => {
+				const playerTimer = playerTimers[player.number];
+				if (!playerTimer || !playerTimer.intervals || playerTimer.intervals.length === 0) {
+					return null;
+				}
+				
+				const avgTime = playerTimer.intervals.reduce((sum, interval) => sum + interval, 0) / playerTimer.intervals.length;
+				
+				return {
+					name: `#${player.number}`,
+					avgTime: Math.round(avgTime / 1000 * 10) / 10,
+					intervals: playerTimer.intervals.length,
+					totalActions: player.points + player.attacks + player.tips
+				};
+			})
+			.filter(item => item !== null)
+			.sort((a, b) => a.avgTime - b.avgTime);
+	};
+
+	const getFilteredTopScorers = () => {
+		const filteredPlayers = getFilteredPlayers();
+		return filteredPlayers
+			.map((p) => ({
+				number: p.number,
+				total: p.points + p.attacks + p.tips,
+				points: p.points,
+				attacks: p.attacks,
+				tips: p.tips,
+			}))
+			.sort((a, b) => b.total - a.total)
+			.slice(0, 6);
 	};
 
 	const COLORS = [
@@ -279,13 +415,31 @@ const [ballDrops, setBallDrops] = useState([]);
 			{showAnalysis && (
 				<div className="analysis-section">
 					<h2>Match Analysis</h2>
+					
+					<div className="filter-controls">
+						<label htmlFor="player-filter">Filter Players:</label>
+						<select 
+							id="player-filter"
+							value={analysisFilter} 
+							onChange={(e) => setAnalysisFilter(e.target.value)}
+							className="filter-select"
+						>
+							<option value="all">All Players</option>
+							<option value="playing">Playing Only</option>
+							<option value="RS">RS - Right Side</option>
+							<option value="OH">OH - Outside Hitter</option>
+							<option value="L">L - Libero</option>
+							<option value="S">S - Setter</option>
+							<option value="M">M - Middle</option>
+						</select>
+					</div>
 
 					<div className="charts-container">
 						<div className="chart-wrapper">
 							<h3>Top 6 Scorers</h3>
 
 							<ul className="top-scorers">
-								{getTopScorers().map((p, index) => (
+								{getFilteredTopScorers().map((p, index) => (
 									<li key={p.number}>
 										<span className="rank">#{index + 1}</span>
 										<span className="player">Player {p.number}</span>
@@ -298,7 +452,7 @@ const [ballDrops, setBallDrops] = useState([]);
 							<ResponsiveContainer width="100%" height={260}>
 								<PieChart>
 									<Pie
-										data={getPlayerStatsData()}
+										data={getFilteredPlayerStatsData()}
 										cx="50%"
 										cy="50%"
 										innerRadius={50}
@@ -306,7 +460,7 @@ const [ballDrops, setBallDrops] = useState([]);
 										paddingAngle={3}
 										dataKey="value"
 									>
-										{getPlayerStatsData().map((_, index) => (
+										{getFilteredPlayerStatsData().map((_, index) => (
 											<Cell key={index} fill={COLORS[index % COLORS.length]} />
 										))}
 									</Pie>
@@ -330,20 +484,20 @@ const [ballDrops, setBallDrops] = useState([]);
 							</ResponsiveContainer>
 						</div>
 
-						{getErrorsData().length > 0 && (
+						{getFilteredErrorsData().length > 0 && (
 							<div className="chart-wrapper">
 								<h3>Player Errors</h3>
 								<ResponsiveContainer width="100%" height={300}>
 									<PieChart>
 										<Pie
-											data={getErrorsData()}
+											data={getFilteredErrorsData()}
 											cx="50%"
 											cy="50%"
 											innerRadius={50}
 											outerRadius={90}
 											dataKey="value"
 										>
-											{getErrorsData().map((entry, index) => (
+											{getFilteredErrorsData().map((entry, index) => (
 												<Cell
 													key={`cell-${index}`}
 													fill={COLORS[index % COLORS.length]}
@@ -357,6 +511,22 @@ const [ballDrops, setBallDrops] = useState([]);
 							</div>
 						)}
 					</div>
+
+					{getFilteredTimingData().length > 0 && (
+						<div className="chart-wrapper">
+							<h3>Average Time Between Scoring Actions</h3>
+							<ul className="timing-list">
+								{getFilteredTimingData().map((player, index) => (
+									<li key={player.name} className="timing-item">
+										<span className="rank">#{index + 1}</span>
+										<span className="player">{player.name}</span>
+										<span className="avg-time">{player.avgTime}s</span>
+										<span className="actions-count">{player.intervals} intervals</span>
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
 
 					<div className="court-analysis">
 						<h3>Court Heat Map - Ball Drops</h3>
