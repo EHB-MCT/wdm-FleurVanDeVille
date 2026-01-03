@@ -1,0 +1,9 @@
+.team-form ul {
+    list-style-type: none;
+    padding-left: 0;
+	margin-bottom: 20px;
+}
+
+.team-form ul li {
+    margin-bottom: 12px;
+}

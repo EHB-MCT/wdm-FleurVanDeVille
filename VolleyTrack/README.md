@@ -1,5 +1,3 @@
-# Portfolio
-
 # VolleyTrack
 
 VolleyTrack is a **volleyball match tracking app** built with React, Node.js and Mongodb. It helps coaches and scouts track live match statistics, player performance, and court activity in real-time. The app provides visual analysis, including top scorers, errors, scoring zones, ball drops, and timing metrics for actions.

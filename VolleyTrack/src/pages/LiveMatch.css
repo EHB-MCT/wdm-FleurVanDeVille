@@ -1,0 +1,260 @@
+.court-section {
+	margin-top: 30px;
+	padding: 20px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	background-color: #f9f9f9;
+}
+
+.players-score {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+	gap: 10px;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.oppo-score {
+	margin-left: 41%;
+}
+
+.court {
+	position: relative;
+	width: 550px;
+	height: 550px;
+	background-color: #f4e4c1;
+	border: 3px solid #8b4513;
+	cursor: crosshair;
+	margin: 20px auto;
+	overflow: hidden;
+}
+
+.court-lines {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+.center-line {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: 2px;
+	height: 100%;
+	background-color: #8b451337;
+	transform: translateX(-50%);
+}
+
+.attack-line {
+	position: absolute;
+	top: 33.33%;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	background-color: #8b4513;
+}
+
+.end-line {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	background-color: #8b4513;
+}
+
+.ball-drop {
+	position: absolute;
+	width: 12px;
+	height: 12px;
+	background-color: #ff4444;
+	border-radius: 50%;
+	border: 2px solid #ffffff;
+	transform: translate(-50%, -50%);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+	z-index: 10;
+	pointer-events: none;
+}
+
+.clear-button {
+	display: block;
+	margin: 10px auto;
+	padding: 8px 16px;
+	background-color: #ff4444;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+.clear-button:hover {
+	background-color: #cc0000;
+}
+
+.analysis-section {
+	margin-top: 30px;
+	padding: 20px;
+	border: 2px solid #4CAF50;
+	border-radius: 8px;
+	background-color: #f0f8f0;
+}
+
+.filter-controls {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	margin-bottom: 20px;
+	padding: 15px;
+	background: white;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-controls label {
+	font-weight: 600;
+	color: #333;
+}
+
+.filter-select {
+	padding: 8px 12px;
+	border: 2px solid #ddd;
+	border-radius: 6px;
+	background: white;
+	font-size: 14px;
+	cursor: pointer;
+	min-width: 200px;
+}
+
+.filter-select:focus {
+	outline: none;
+	border-color: #4CAF50;
+	box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.charts-container {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+	gap: 24px;
+	margin-top: 20px;
+}
+
+.chart-wrapper {
+	background: #fff;
+	padding: 16px;
+	border-radius: 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.chart-wrapper h3 {
+	text-align: center;
+	margin-bottom: 10px;
+	color: #333;
+}
+
+.court-analysis {
+	margin-top: 30px;
+}
+
+.court-analysis h3{
+	text-align: center;
+	margin-bottom: 20px;
+	color: #333;
+}
+
+.analysis-court {
+	position: relative;
+	margin: 20px auto;
+	margin-left: 25vw;
+}
+
+.gradient-spot {
+	position: absolute;
+	pointer-events: none;
+	border-radius: 50%;
+}
+
+.analysis-drop {
+	background-color: #ffffff;
+	border: 2px solid #ff4444;
+}
+
+.top-scorers {
+	list-style: none;
+	padding: 0;
+	margin-bottom: 16px;
+}
+
+.top-scorers li {
+	display: grid;
+	grid-template-columns: 30px 1fr 40px;
+	padding: 6px 0;
+	border-bottom: 1px solid #eee;
+}
+
+.top-scorers .rank {
+	font-weight: bold;
+}
+
+.top-scorers .score {
+	text-align: right;
+	font-weight: bold;
+}
+
+.timing-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.timing-item {
+	display: grid;
+	grid-template-columns: 30px 1fr 60px 80px;
+	padding: 8px 0;
+	border-bottom: 1px solid #eee;
+	align-items: center;
+}
+
+.timing-item .rank {
+	font-weight: bold;
+	color: #667eea;
+}
+
+.timing-item .player {
+	font-weight: 500;
+}
+
+.timing-item .avg-time {
+	font-weight: bold;
+	color: #28a745;
+	text-align: center;
+}
+
+.timing-item .actions-count {
+	font-size: 0.8em;
+	color: #666;
+	text-align: right;
+}
+
+.match-duration {
+	text-align: center;
+	margin-top: 30px;
+	padding: 20px;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	border-radius: 8px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.match-duration h3 {
+	margin: 0 0 10px 0;
+	font-size: 1.2em;
+}
+
+.duration-time {
+	font-size: 2em;
+	font-weight: bold;
+	margin: 0;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
