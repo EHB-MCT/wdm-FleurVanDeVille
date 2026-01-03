@@ -55,9 +55,8 @@ VolleyTrack is a **volleyball match tracking app** built with React, Node.js and
 - [Docker Compose](https://docs.docker.com/compose/) installed
 
 1. Clone the repository:
-
 ```bash
-git clone https://github.com/yourusername/volleytrack.git
+git clone https://github.com/EHB-MCT/wdm-FleurVanDeVille.git
 cd wdm-FleurVanDeVille
 ```
 
