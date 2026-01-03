@@ -18,6 +18,7 @@ import {
 function LiveMatch() {
 	const { state } = useLocation();
 	const { team, players, matchStartTime } = state || {};
+	const API_URL = "http://backend:5500";
 
 	const [stats, setStats] = useState(
 		players.map((p) => ({
@@ -39,36 +40,36 @@ function LiveMatch() {
 				s.number === number ? { ...s, [field]: s[field] + 1 } : s
 			)
 		);
-		
+
 		// Track timing for points, tips, and attacks
-		if (field === 'points' || field === 'tips' || field === 'attacks') {
+		if (field === "points" || field === "tips" || field === "attacks") {
 			const now = Date.now();
-			
+
 			// Clear existing timer for this player
 			if (playerIntervals[number]) {
 				clearInterval(playerIntervals[number]);
 			}
-			
+
 			// If this player had a previous start time, record the interval
 			if (playerTimers[number]?.startTime) {
 				const interval = now - playerTimers[number].startTime;
-				setPlayerTimers(prev => ({
+				setPlayerTimers((prev) => ({
 					...prev,
 					[number]: {
 						...prev[number],
 						intervals: [...(prev[number]?.intervals || []), interval],
-						startTime: now
-					}
+						startTime: now,
+					},
 				}));
 			} else {
 				// Start timing for this player
-				setPlayerTimers(prev => ({
+				setPlayerTimers((prev) => ({
 					...prev,
 					[number]: {
 						...prev[number],
 						startTime: now,
-						intervals: prev[number]?.intervals || []
-					}
+						intervals: prev[number]?.intervals || [],
+					},
 				}));
 			}
 		}
@@ -90,12 +91,12 @@ function LiveMatch() {
 		}));
 	};
 
-const [ballDrops, setBallDrops] = useState([]);
+	const [ballDrops, setBallDrops] = useState([]);
 	const [showAnalysis, setShowAnalysis] = useState(false);
 	const [matchDuration, setMatchDuration] = useState(null);
 	const [playerTimers, setPlayerTimers] = useState({});
 	const [playerIntervals, setPlayerIntervals] = useState({});
-	const [analysisFilter, setAnalysisFilter] = useState('all');
+	const [analysisFilter, setAnalysisFilter] = useState("all");
 
 	const handleCourtClick = (event) => {
 		const court = event.currentTarget;
@@ -110,7 +111,7 @@ const [ballDrops, setBallDrops] = useState([]);
 		const totalSeconds = Math.floor(milliseconds / 1000);
 		const minutes = Math.floor(totalSeconds / 60);
 		const seconds = totalSeconds % 60;
-		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+		return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 	};
 
 	const handleSeeAnalysis = () => {
@@ -120,13 +121,15 @@ const [ballDrops, setBallDrops] = useState([]);
 			setMatchDuration(duration);
 		}
 		// Stop all player timers when analysis is shown
-		Object.values(playerIntervals).forEach(interval => clearInterval(interval));
+		Object.values(playerIntervals).forEach((interval) =>
+			clearInterval(interval)
+		);
 		setShowAnalysis(!showAnalysis);
 	};
 
 	const saveMatch = async () => {
 		try {
-			const res = await fetch("http://localhost:5500/matches", {
+			const res = await fetch(`${API_URL}/matches`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -185,40 +188,46 @@ const [ballDrops, setBallDrops] = useState([]);
 		return stats
 			.map((player) => {
 				const playerTimer = playerTimers[player.number];
-				if (!playerTimer || !playerTimer.intervals || playerTimer.intervals.length === 0) {
+				if (
+					!playerTimer ||
+					!playerTimer.intervals ||
+					playerTimer.intervals.length === 0
+				) {
 					return null;
 				}
-				
-				const avgTime = playerTimer.intervals.reduce((sum, interval) => sum + interval, 0) / playerTimer.intervals.length;
-				
+
+				const avgTime =
+					playerTimer.intervals.reduce((sum, interval) => sum + interval, 0) /
+					playerTimer.intervals.length;
+
 				return {
 					name: `#${player.number}`,
-					avgTime: Math.round(avgTime / 1000 * 10) / 10, // Convert to seconds with 1 decimal
+					avgTime: Math.round((avgTime / 1000) * 10) / 10, // Convert to seconds with 1 decimal
 					intervals: playerTimer.intervals.length,
-					totalActions: player.points + player.attacks + player.tips
+					totalActions: player.points + player.attacks + player.tips,
 				};
 			})
-			.filter(item => item !== null)
+			.filter((item) => item !== null)
 			.sort((a, b) => a.avgTime - b.avgTime); // Sort by fastest average time
 	};
 
 	const getFilteredPlayers = () => {
 		let filteredStats = [...stats];
-		
-		if (analysisFilter === 'playing') {
+
+		if (analysisFilter === "playing") {
 			// Filter for players who are marked as playing
-			filteredStats = filteredStats.filter(stat => {
-				const player = players.find(p => p.number === stat.number);
+			filteredStats = filteredStats.filter((stat) => {
+				const player = players.find((p) => p.number === stat.number);
 				return player && player.isPlaying;
 			});
-		} else if (analysisFilter !== 'all') {
+		} else if (analysisFilter !== "all") {
 			// Filter by position
-			filteredStats = filteredStats.filter(stat => {
-				const player = players.find(p => p.number === stat.number);
+			filteredStats = filteredStats.filter((stat) => {
+				const player = players.find((p) => p.number === stat.number);
 				return player && player.position === analysisFilter;
 			});
 		}
-		
+
 		return filteredStats;
 	};
 
@@ -248,20 +257,26 @@ const [ballDrops, setBallDrops] = useState([]);
 		return filteredPlayers
 			.map((player) => {
 				const playerTimer = playerTimers[player.number];
-				if (!playerTimer || !playerTimer.intervals || playerTimer.intervals.length === 0) {
+				if (
+					!playerTimer ||
+					!playerTimer.intervals ||
+					playerTimer.intervals.length === 0
+				) {
 					return null;
 				}
-				
-				const avgTime = playerTimer.intervals.reduce((sum, interval) => sum + interval, 0) / playerTimer.intervals.length;
-				
+
+				const avgTime =
+					playerTimer.intervals.reduce((sum, interval) => sum + interval, 0) /
+					playerTimer.intervals.length;
+
 				return {
 					name: `#${player.number}`,
-					avgTime: Math.round(avgTime / 1000 * 10) / 10,
+					avgTime: Math.round((avgTime / 1000) * 10) / 10,
 					intervals: playerTimer.intervals.length,
-					totalActions: player.points + player.attacks + player.tips
+					totalActions: player.points + player.attacks + player.tips,
 				};
 			})
-			.filter(item => item !== null)
+			.filter((item) => item !== null)
 			.sort((a, b) => a.avgTime - b.avgTime);
 	};
 
@@ -408,19 +423,17 @@ const [ballDrops, setBallDrops] = useState([]);
 			</div>
 			<br />
 			<button onClick={saveMatch}>Save Match</button>
-			<button onClick={handleSeeAnalysis}>
-				See Analysis
-			</button>
+			<button onClick={handleSeeAnalysis}>See Analysis</button>
 
 			{showAnalysis && (
 				<div className="analysis-section">
 					<h2>Match Analysis</h2>
-					
+
 					<div className="filter-controls">
 						<label htmlFor="player-filter">Filter Players:</label>
-						<select 
+						<select
 							id="player-filter"
-							value={analysisFilter} 
+							value={analysisFilter}
 							onChange={(e) => setAnalysisFilter(e.target.value)}
 							className="filter-select"
 						>
@@ -521,7 +534,9 @@ const [ballDrops, setBallDrops] = useState([]);
 										<span className="rank">#{index + 1}</span>
 										<span className="player">{player.name}</span>
 										<span className="avg-time">{player.avgTime}s</span>
-										<span className="actions-count">{player.intervals} intervals</span>
+										<span className="actions-count">
+											{player.intervals} intervals
+										</span>
 									</li>
 								))}
 							</ul>
@@ -549,7 +564,7 @@ const [ballDrops, setBallDrops] = useState([]);
 							))}
 						</div>
 					</div>
-					
+
 					{matchDuration && (
 						<div className="match-duration">
 							<h3>Match Duration</h3>
