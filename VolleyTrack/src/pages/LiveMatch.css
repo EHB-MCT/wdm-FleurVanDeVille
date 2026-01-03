@@ -6,7 +6,7 @@
 	background-color: #f9f9f9;
 }
 
-.players-score{
+.players-score {
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr 1fr;
 	gap: 10px;
@@ -14,7 +14,7 @@
 	margin-bottom: 10px;
 }
 
-.oppo-score{
+.oppo-score {
 	margin-left: 41%;
 }
 
@@ -72,7 +72,7 @@
 	border-radius: 50%;
 	border: 2px solid #ffffff;
 	transform: translate(-50%, -50%);
-	box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 	z-index: 10;
 	pointer-events: none;
 }
@@ -109,7 +109,7 @@
 	padding: 15px;
 	background: white;
 	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .filter-controls label {
@@ -144,7 +144,7 @@
 	background: #fff;
 	padding: 16px;
 	border-radius: 12px;
-	box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .chart-wrapper h3 {
@@ -157,9 +157,16 @@
 	margin-top: 30px;
 }
 
+.court-analysis h3{
+	text-align: center;
+	margin-bottom: 20px;
+	color: #333;
+}
+
 .analysis-court {
 	position: relative;
 	margin: 20px auto;
+	margin-left: 25vw;
 }
 
 .gradient-spot {
@@ -237,7 +244,7 @@
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 	color: white;
 	border-radius: 8px;
-	box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .match-duration h3 {
@@ -249,5 +256,5 @@
 	font-size: 2em;
 	font-weight: bold;
 	margin: 0;
-	text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
