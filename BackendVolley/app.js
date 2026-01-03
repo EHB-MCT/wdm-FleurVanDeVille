@@ -22,7 +22,7 @@ async function startServer() {
     matches = database.collection('matches');
     console.log("Connected to MongoDB:", process.env.DB_NAME);
 
-    app.listen(port, () => {
+    app.listen(port, "0.0.0.0", () => {
       console.log(`VolleyTrack backend running on port ${port}`);
     });
 
