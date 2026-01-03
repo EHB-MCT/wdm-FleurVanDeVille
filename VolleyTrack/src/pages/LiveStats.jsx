@@ -13,26 +13,29 @@ function LiveStats() {
 	});
 	const [players, setPlayers] = useState([]);
 	const navigate = useNavigate();
+
+	const API_URL = "http://backend:5500";
+
 	const goToMatch = () => {
 		const matchStartTime = Date.now();
 		navigate("/live-match", { state: { team: selectedTeam, players, matchStartTime } });
 	};
 
 	useEffect(() => {
-		fetch("http://localhost:5500/teams")
+		fetch(`${API_URL}/teams`)
 			.then((res) => res.json())
 			.then((data) => setTeams(data))
-			.catch((err) => console.error(err));
+			.catch((err) => console.error("Fetch teams failed:", err));
 	}, []);
 
 	useEffect(() => {
 		if (!selectedTeam) return;
 
-		fetch(`http://localhost:5500/teams/${selectedTeam._id}/players`)
+		fetch(`${API_URL}/teams/${selectedTeam._id}/players`)
 			.then((res) => res.json())
 			.then((data) => setPlayers(Array.isArray(data) ? data : []))
 			.catch((err) => {
-				console.error(err);
+				console.error("Fetch players failed:", err);
 				setPlayers([]);
 			});
 	}, [selectedTeam]);
@@ -41,7 +44,7 @@ function LiveStats() {
 		if (!teamForm.coachName || !teamForm.teamName) return;
 
 		try {
-			const res = await fetch("http://localhost:5500/teams", {
+			const res = await fetch(`${API_URL}/teams`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(teamForm),
@@ -50,7 +53,7 @@ function LiveStats() {
 			setSelectedTeam(data);
 			setTeamForm({ coachName: "", teamName: "" });
 		} catch (err) {
-			console.error(err);
+			console.error("Create team failed:", err);
 		}
 	};
 
@@ -59,7 +62,7 @@ function LiveStats() {
 
 		try {
 			const res = await fetch(
-				`http://localhost:5500/teams/${selectedTeam._id}/players`,
+				`${API_URL}/teams/${selectedTeam._id}/players`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
@@ -72,7 +75,7 @@ function LiveStats() {
 				setNewPlayer({ number: "", position: "", isPlaying: false });
 			}
 		} catch (err) {
-			console.error(err);
+			console.error("Add player failed:", err);
 		}
 	};
 
@@ -88,8 +91,7 @@ function LiveStats() {
 							setTeamForm({ ...teamForm, coachName: e.target.value })
 						}
 					/>
-					<br />
-					<br />
+					<br /><br />
 					<input
 						placeholder="Teamnaam"
 						value={teamForm.teamName}
@@ -97,8 +99,7 @@ function LiveStats() {
 							setTeamForm({ ...teamForm, teamName: e.target.value })
 						}
 					/>
-					<br />
-					<br />
+					<br /><br />
 					<button onClick={createTeam}>Maak team</button>
 
 					<h3>Of kies een bestaand team</h3>
@@ -125,8 +126,7 @@ function LiveStats() {
 							setNewPlayer((prev) => ({ ...prev, number: e.target.value }))
 						}
 					/>
-					<br />
-					<br />
+					<br /><br />
 					<select
 						value={newPlayer.position}
 						onChange={(e) =>
@@ -140,8 +140,7 @@ function LiveStats() {
 						<option value="S">S</option>
 						<option value="M">M</option>
 					</select>
-					<br />
-					<br />
+					<br /><br />
 					<label>
 						<input
 							type="checkbox"
@@ -155,11 +154,9 @@ function LiveStats() {
 						/>
 						Playing
 					</label>
-					<br />
-					<br />
+					<br /><br />
 					<button onClick={addPlayer}>Voeg speler toe</button>
-					<br />
-					<br />
+					<br /><br />
 					<h3>Spelerslijst</h3>
 					<ul>
 						{players.map((p, i) => (
