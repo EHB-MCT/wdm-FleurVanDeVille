@@ -43,13 +43,48 @@ VolleyTrack is a **volleyball match tracking app** built with React, Node.js and
 
 - [ChatGPT](https://chatgpt.com/share/69553d2f-0c9c-8007-8f64-0f6bada23b84) => Helping with better visualization.
 
+- [ChatGPT](https://chatgpt.com/share/69590656-fdc4-8008-9a81-860fbdd369a7) => Helping with Docker.
+
 ---
 
 ## Up & running
+
+### Requirements
+
+- [Docker](https://www.docker.com/) installed
+- [Docker Compose](https://docs.docker.com/compose/) installed
 
 1. Clone the repository:
 
 ```bash
 git clone https://github.com/yourusername/volleytrack.git
-cd volleytrack
+cd wdm-FleurVanDeVille
+```
+
+2. Check docker-compose.yml:
+Make sure the services are correctly configured:bash
+- backend: Node.js + Express, port 5500
+- frontend: Vite, port 5175 (or as configured)
+- mongo: MongoDB, port 27017
+
+3. Build and start the containers:
+```bash
+docker-compose up --build
+```
+This will build and start:
+- Backend at http://localhost:5500
+- Frontend at http://localhost:5175
+- MongoDB database
+
+4. Access the frontend:
+Open your browser and go to: http://localhost:5175
+
+5. Manage the containers:
+- Stop the containers:
+```bash
+docker-compose down
+```
+- Restart after code changes:
+```bash
+docker-compose up --build
 ```
