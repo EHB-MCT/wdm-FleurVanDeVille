@@ -2,6 +2,8 @@ import "./LiveStats.css";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5500";
+
 function LiveStats() {
 	const [teams, setTeams] = useState([]);
 	const [selectedTeam, setSelectedTeam] = useState(null);
@@ -13,8 +15,6 @@ function LiveStats() {
 	});
 	const [players, setPlayers] = useState([]);
 	const navigate = useNavigate();
-
-	const API_URL = "http://backend:5500";
 
 	const goToMatch = () => {
 		const matchStartTime = Date.now();
@@ -56,19 +56,16 @@ function LiveStats() {
 			console.error("Create team failed:", err);
 		}
 	};
-
+	
 	const addPlayer = async () => {
 		if (!selectedTeam || !newPlayer.number || !newPlayer.position) return;
 
 		try {
-			const res = await fetch(
-				`${API_URL}/teams/${selectedTeam._id}/players`,
-				{
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(newPlayer),
-				}
-			);
+			const res = await fetch(`${API_URL}/teams/${selectedTeam._id}/players`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(newPlayer),
+			});
 			const data = await res.json();
 			if (res.ok) {
 				setPlayers((prev) => [...prev, data.player]);
