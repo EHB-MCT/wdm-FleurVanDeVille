@@ -64,7 +64,7 @@ cd wdm-FleurVanDeVille
 2. Check docker-compose.yml:
 Make sure the services are correctly configured:bash
 - backend: Node.js + Express, port 5500
-- frontend: Vite, port 5175 (or as configured)
+- frontend: Vite, port 5174 (or as configured)
 - mongo: MongoDB, port 27017
 
 3. Build and start the containers:
@@ -73,11 +73,11 @@ docker-compose up --build
 ```
 This will build and start:
 - Backend at http://localhost:5500
-- Frontend at http://localhost:5175
+- Frontend at http://localhost:5174/
 - MongoDB database
 
 4. Access the frontend:
-Open your browser and go to: http://localhost:5175
+Open your browser and go to: http://localhost:5174/
 
 5. Manage the containers:
 - Stop the containers:
